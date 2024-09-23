@@ -25,3 +25,5 @@ print(csp.backtracking_search())
 
 # Example output after implementing csp.backtracking_search():
 # {'WA': 'red', 'NT': 'green', 'Q': 'red', 'NSW': 'green', 'V': 'red', 'SA': 'blue', 'T': 'red'}
+#! My output after running
+# {'WA': 'green', 'NT': 'blue', 'Q': 'green', 'NSW': 'blue', 'V': 'green', 'SA': 'red', 'T': 'green'}

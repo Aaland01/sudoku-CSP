@@ -37,11 +37,17 @@ class CSP:
         self.binary_constraints: dict[tuple[str, str], set] = {}
         for variable1, variable2 in edges:
             self.binary_constraints[(variable1, variable2)] = set()
+            # Added to support other ordering
+            self.binary_constraints[(variable2, variable1)] = set()
             for value1 in self.domains[variable1]:
                 for value2 in self.domains[variable2]:
                     if value1 != value2:
                         self.binary_constraints[(variable1, variable2)].add((value1, value2))
                         self.binary_constraints[(variable1, variable2)].add((value2, value1))
+                        # Added to support other ordering
+                        self.binary_constraints[(variable2, variable1)].add((value1, value2))
+                        self.binary_constraints[(variable2, variable1)].add((value2, value1))
+                        
 
     def ac_3(self) -> bool:
         """Performs AC-3 on the CSP.
@@ -63,25 +69,9 @@ class CSP:
         None | dict[str, Any]
             A solution if any exists, otherwise None
         """
+        #! My code ----------------------------------------------------------------
             
-        def backtrack(assignment: dict[str, Any]):
-            #! My code ----------------------------------------------------------------
-            var = select_unassigned_variable(assignment)
-            # Since select_unassigned_variable method basically is a completeness check, 
-            # it returns None if no unassigned are left which is used to verify completeness.
-            if var is None:
-                return assignment
-            for value in order_domain_values(var):
-                if consistent(value, var, assignment):
-                    assignment[var] = value
-                    # Inferences are skipped per assignment description
-                    result = backtrack(assignment)
-                    if result is not None:
-                        return result
-                    assignment.pop(value)
-            return None
-        
-        def select_unassigned_variable(self, assignment: dict[str, Any]):
+        def select_unassigned_variable(assignment: dict[str, Any]):
             for variable in self.variables:
                 if variable not in assignment:
                     return variable
@@ -90,10 +80,8 @@ class CSP:
         # domains: dict of [district, {possible colors}]
         # i.e. {'WA': {'green', 'red', 'blue'}, 'NT': {'green', 'red', 'blue'}, ... }
         #Any ordering is fine - sorted alphabetically just in case
-        def order_domain_values(self, var):
-            domainValues = self.domains[var]
-            domainValues.sort()
-            return domainValues
+        def order_domain_values(var):
+            return self.domains[var]
         
         
         """
@@ -110,40 +98,48 @@ class CSP:
             # ):
             #     Violates a binary constraint
         """
-        def consistent(self, value, currentVariable, assignment):
+        def consistent(value, currentVariable, assignment):
             # Empty assignment dict implies no constraints violated
             if not assignment:
                 return True
             constraints = self.binary_constraints
-            otherValue = assignment[otherVariable]
             # Check each variable in assignment
             for otherVariable in assignment:
                 # Check possible first ordering:
-                variablePair1 = (currentVariable, otherVariable)
-                if variablePair1 in constraints:
-                    illegalValuePairs = constraints[variablePair1]
-                    if (value, otherValue) in illegalValuePairs:
+                otherValue = assignment[otherVariable]
+                variablePair = (currentVariable, otherVariable)
+                if variablePair in constraints:
+                    legalValuePairs = constraints[variablePair]
+                    if (value, otherValue) not in legalValuePairs:
                         return False
-                # Check possible other ordering:
-                variablePair2 = (otherVariable, currentVariable)
-                if variablePair2 in constraints:
-                    illegalValuePairs = constraints[variablePair2]
-                    if (otherValue, value) in illegalValuePairs:
+                # Check possible other ordering --- however:
+                #! Dont think this works, as the assignment says it does not store 
+                #! the other order, only one order for each pair
+                variablePair = (otherVariable, currentVariable)
+                if variablePair in constraints:
+                    legalValuePairs = constraints[variablePair]
+                    if (otherValue, value) not in legalValuePairs:
                         return False
                 # The two checks could be better implemented as a method as they are similar, 
                 # only with different order. Leaving it be for now.
-            # No match in any illegalValuePair? => No constraints violated
+            # 
             return True
         
-        # Deprecated completenes-method, the same as select_unassigned_variable
-        """
-        def complete(self, assignment):
-            for variable in self.variables:
-                if variable not in assignment:
-                    return False
-            return True
-        """
-            
+        def backtrack(assignment: dict[str, Any]):
+            var = select_unassigned_variable(assignment)
+            # Since select_unassigned_variable method basically is a completeness check, 
+            # it returns None if no unassigned are left which is used to verify completeness.
+            if var is None:
+                return assignment
+            for value in order_domain_values(var):
+                if consistent(value, var, assignment):
+                    assignment[var] = value
+                    # Inferences are skipped per assignment description
+                    result = backtrack(assignment)
+                    if result is not None:
+                        return result
+                    assignment.pop(var)
+            return None 
         return backtrack({})
     
     """
