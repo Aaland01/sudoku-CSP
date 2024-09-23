@@ -1,3 +1,4 @@
+from collections import deque
 from typing import Any
 from queue import Queue
 
@@ -58,83 +59,61 @@ class CSP:
         bool
             False if a domain becomes empty, otherwise True
             
-        Pseudo:
-        function AC3() returns false if an inconsistency is found, true otherwise
-            queue = a queue of arcs, initially all arcs in csp
-            
-            while queue is not empty
-                (X, Y) = queue.pop()
-                if revise(X, Y)
-                    if size of Dx = 0
-                        return false
-                    neighbours = X.neighbors - Y
-                    for each x in neighbours 
-                add (x, X) to queue
-            return true
         """
-        # YOUR CODE HERE (and remove the assertion below)
-        # queue init
-        queue = Queue()
-        # arc = variablePair
+        # My code below here ----------------
+        queue = deque()
         for arc in self.binary_constraints:
-            print(arc)
             if arc not in queue:
-                queue.put(arc)
+                queue.append(arc)
+        print(queue)
         
-        # Revise checking
-        safetyCounter = 0
-        while not queue.empty():
-            currentArc = queue.get()
-            if revise(currentArc):
-                X = currentArc[0]
-                domainX = self.domains[X]
-                if len(domainX) == 0:
-                    return False
-                
-                #Finding neighbors for X in variable pair (X,Y)
-                neighbors = []
-                Y = currentArc[1]
-                for constraintPair in self.binary_constraints:
-                    if (X in constraintPair) and (Y not in constraintPair):
-                        neighbor = constraintPair[0] if constraintPair[0]==X else constraintPair[1]
-                        if neighbor not in neighbors:
-                            neighbors.insert(neighbor)
-                            
-                for adjacentVariable in neighbors:
-                    queue.put((adjacentVariable, X))
-                    
-            safetyCounter += 1
-            if safetyCounter >= 100:
-                print("------------ Counter safety engaged ------------")
-                break
-            
-        """
-        function Revise(X, Y) returns true if only if we revise domain of X
-            revised = false
-            for each x in Dx 
-                if no value y in Dy allows (x,y) to satisfy constraint between X,Y 
-                    remove x from Dx
-                    revised = true
-        return revised
-        """    
+        # Revise method ---------------------------------------------
         def revise(arc):
             revised = False
             X = arc[0]
             Y = arc[1]
-            domainX = self.domains[X]
+            domainX = set(self.domains[X])
             domainY = self.domains[Y]
             constraints = self.binary_constraints
             variablePair = (X, Y)
             if variablePair in constraints:
                 legalValues = constraints[variablePair]
             for xValue in domainX:
+                discard = True
                 for yValue in domainY:
-                    if (xValue, yValue) not in legalValues:
-                        self.domains[X].discard(xValue)
-                        revised = True
+                    if (xValue, yValue) in legalValues:
+                        discard = False
+                        break
+                if discard:
+                    self.domains[X].discard(xValue)
+                    revised = True
             return revised        
-            
-            
+            # ---------------------------------------------
+        
+        safetyCounter = 0
+        while not len(queue)==0:
+            currentArc = queue.popleft()
+            if revise(currentArc):
+                X = currentArc[0]
+                domainX = self.domains[X]
+                if len(domainX) == 0:
+                    return False
+                
+                neighbors = []
+                Y = currentArc[1]
+                for constraintPair in self.binary_constraints:
+                    if (X in constraintPair) and (Y not in constraintPair):
+                        neighbor = constraintPair[0] if constraintPair[0]==X else constraintPair[1]
+                        if neighbor not in neighbors:
+                            neighbors.append(neighbor)
+                            
+                for adjacentVariable in neighbors:
+                    queue.append((adjacentVariable, X))
+                    
+            safetyCounter += 1
+            if safetyCounter >= 100:
+                print("------------ Counter safety engaged ------------")
+                break
         return True
         
 
