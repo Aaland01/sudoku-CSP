@@ -57,9 +57,86 @@ class CSP:
         -------
         bool
             False if a domain becomes empty, otherwise True
+            
+        Pseudo:
+        function AC3() returns false if an inconsistency is found, true otherwise
+            queue = a queue of arcs, initially all arcs in csp
+            
+            while queue is not empty
+                (X, Y) = queue.pop()
+                if revise(X, Y)
+                    if size of Dx = 0
+                        return false
+                    neighbours = X.neighbors - Y
+                    for each x in neighbours 
+                add (x, X) to queue
+            return true
         """
         # YOUR CODE HERE (and remove the assertion below)
-        assert False, "Not implemented"
+        # queue init
+        queue = Queue()
+        # arc = variablePair
+        for arc in self.binary_constraints:
+            print(arc)
+            if arc not in queue:
+                queue.put(arc)
+        
+        # Revise checking
+        safetyCounter = 0
+        while not queue.empty():
+            currentArc = queue.get()
+            if revise(currentArc):
+                X = currentArc[0]
+                domainX = self.domains[X]
+                if len(domainX) == 0:
+                    return False
+                
+                #Finding neighbors for X in variable pair (X,Y)
+                neighbors = []
+                Y = currentArc[1]
+                for constraintPair in self.binary_constraints:
+                    if (X in constraintPair) and (Y not in constraintPair):
+                        neighbor = constraintPair[0] if constraintPair[0]==X else constraintPair[1]
+                        if neighbor not in neighbors:
+                            neighbors.insert(neighbor)
+                            
+                for adjacentVariable in neighbors:
+                    queue.put((adjacentVariable, X))
+                    
+            safetyCounter += 1
+            if safetyCounter >= 100:
+                print("------------ Counter safety engaged ------------")
+                break
+            
+        """
+        function Revise(X, Y) returns true if only if we revise domain of X
+            revised = false
+            for each x in Dx 
+                if no value y in Dy allows (x,y) to satisfy constraint between X,Y 
+                    remove x from Dx
+                    revised = true
+        return revised
+        """    
+        def revise(arc):
+            revised = False
+            X = arc[0]
+            Y = arc[1]
+            domainX = self.domains[X]
+            domainY = self.domains[Y]
+            constraints = self.binary_constraints
+            variablePair = (X, Y)
+            if variablePair in constraints:
+                legalValues = constraints[variablePair]
+            for xValue in domainX:
+                for yValue in domainY:
+                    if (xValue, yValue) not in legalValues:
+                        self.domains[X].discard(xValue)
+                        revised = True
+            return revised        
+            
+            
+        return True
+        
 
     def backtracking_search(self) -> None | dict[str, Any]:
         """Performs backtracking search on the CSP.
@@ -113,8 +190,6 @@ class CSP:
                     if (value, otherValue) not in legalValuePairs:
                         return False
                 # Check possible other ordering --- however:
-                #! Dont think this works, as the assignment says it does not store 
-                #! the other order, only one order for each pair
                 variablePair = (otherVariable, currentVariable)
                 if variablePair in constraints:
                     legalValuePairs = constraints[variablePair]
@@ -141,12 +216,6 @@ class CSP:
                     assignment.pop(var)
             return None 
         return backtrack({})
-    
-    """
-	• INFERENCE: No inference needs to be performed during the backtracking search, 
-        instead apply the AC-3 algorithm (figure 5.3 p171) prior to running the backtracking search. 
-        This will reduce variable domain to one value each for simpler sudokus
-    """
 
 
 def alldiff(variables: list[str]) -> list[tuple[str, str]]:
