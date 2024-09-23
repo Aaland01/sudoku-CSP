@@ -63,7 +63,24 @@ class CSP:
         None | dict[str, Any]
             A solution if any exists, otherwise None
         """
-        #! My code ----------------------------------------------------------------
+            
+        def backtrack(assignment: dict[str, Any]):
+            #! My code ----------------------------------------------------------------
+            var = select_unassigned_variable(assignment)
+            # Since select_unassigned_variable method basically is a completeness check, 
+            # it returns None if no unassigned are left which is used to verify completeness.
+            if var is None:
+                return assignment
+            for value in order_domain_values(var):
+                if consistent(value, var, assignment):
+                    assignment[var] = value
+                    # Inferences are skipped per assignment description
+                    result = backtrack(assignment)
+                    if result is not None:
+                        return result
+                    assignment.pop(value)
+            return None
+        
         def select_unassigned_variable(self, assignment: dict[str, Any]):
             for variable in self.variables:
                 if variable not in assignment:
@@ -72,7 +89,7 @@ class CSP:
                 
         # domains: dict of [district, {possible colors}]
         # i.e. {'WA': {'green', 'red', 'blue'}, 'NT': {'green', 'red', 'blue'}, ... }
-        #Any ordering is fine - 
+        #Any ordering is fine - sorted alphabetically just in case
         def order_domain_values(self, var):
             domainValues = self.domains[var]
             domainValues.sort()
@@ -80,26 +97,9 @@ class CSP:
         
         
         """
-        Verifying that assigning the value to the variable does not violate any 
+        Method for verifying that assigning a value to the current variable does not violate any 
         constraints with the values already assigned to other variables
-        """
-        def consistent(self, value, currentVariable, assignment):
-            if not assignment:
-                return True
-            constraints = self.binary_constraints
-            otherValue = assignment[otherVariable]
-            for otherVariable in assignment:
-                variablePair1 = (currentVariable, otherVariable)
-                if variablePair1 in constraints:
-                    legalValuePairs = constraints[variablePair1]
-                    if (value, otherValue) in legalValuePairs:
-                        return True
-                variablePair2 = (otherVariable, currentVariable)
-                if variablePair2 in constraints:
-                    legalValuePairs = constraints[variablePair2]
-                    if (otherValue, value) in legalValuePairs:
-                        return True
-            #! --- Above code is based on this:
+        # --- Code is based on this:
             # To check if variable1=value1, variable2=value2 is in violation of a binary constraint:
             # if (
             #     (variable1, variable2) in self.binary_constraints and
@@ -109,7 +109,31 @@ class CSP:
             #     (value1, value2) not in self.binary_constraints[(variable2, variable1)]
             # ):
             #     Violates a binary constraint
-            return False
+        """
+        def consistent(self, value, currentVariable, assignment):
+            # Empty assignment dict implies no constraints violated
+            if not assignment:
+                return True
+            constraints = self.binary_constraints
+            otherValue = assignment[otherVariable]
+            # Check each variable in assignment
+            for otherVariable in assignment:
+                # Check possible first ordering:
+                variablePair1 = (currentVariable, otherVariable)
+                if variablePair1 in constraints:
+                    illegalValuePairs = constraints[variablePair1]
+                    if (value, otherValue) in illegalValuePairs:
+                        return False
+                # Check possible other ordering:
+                variablePair2 = (otherVariable, currentVariable)
+                if variablePair2 in constraints:
+                    illegalValuePairs = constraints[variablePair2]
+                    if (otherValue, value) in illegalValuePairs:
+                        return False
+                # The two checks could be better implemented as a method as they are similar, 
+                # only with different order. Leaving it be for now.
+            # No match in any illegalValuePair? => No constraints violated
+            return True
         
         # Deprecated completenes-method, the same as select_unassigned_variable
         """
@@ -119,23 +143,6 @@ class CSP:
                     return False
             return True
         """
-            
-        def backtrack(assignment: dict[str, Any]):
-            
-            var = select_unassigned_variable(assignment)
-            # Since select_unassigned_variable method basically is a completeness check, 
-            # it returns None if no unassigned are left which is used to verify completeness.
-            if var is None:
-                return assignment
-            for value in order_domain_values(var):
-                if consistent(value, var, assignment):
-                    assignment[value] = var
-                    # Inferences are skipped per assignment description
-                    result = backtrack(assignment)
-                    if result is not None:
-                        return result
-                    assignment.pop(value)
-            return None
             
         return backtrack({})
     
