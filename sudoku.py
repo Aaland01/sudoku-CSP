@@ -56,6 +56,7 @@ csp = CSP(
 
 print(csp.ac_3())
 print_solution(csp.backtracking_search())
+print(f"Backtrack count: {csp.backtrackCounter}")
 
 # Expected output after implementing csp.ac_3() and csp.backtracking_search():
 # True

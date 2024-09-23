@@ -23,6 +23,8 @@ class CSP:
         """
         self.variables = variables
         self.domains = domains
+        self.backtrackCounter = 0
+
 
         # Binary constraints as a dictionary mapping variable pairs to a set of value pairs.
         #
@@ -65,7 +67,6 @@ class CSP:
         for arc in self.binary_constraints:
             if arc not in queue:
                 queue.append(arc)
-        print(queue)
         
         # Revise method ---------------------------------------------
         def revise(arc):
@@ -111,9 +112,11 @@ class CSP:
                     queue.append((adjacentVariable, X))
                     
             safetyCounter += 1
-            if safetyCounter >= 100:
+            if safetyCounter >= 1000:
                 print("------------ Counter safety engaged ------------")
                 break
+        print("-------------- AC-3 finished -------------\nDomains:")
+        print(self.domains)
         return True
         
 
@@ -126,7 +129,7 @@ class CSP:
             A solution if any exists, otherwise None
         """
         #! My code ----------------------------------------------------------------
-            
+        
         def select_unassigned_variable(assignment: dict[str, Any]):
             for variable in self.variables:
                 if variable not in assignment:
@@ -139,22 +142,12 @@ class CSP:
         def order_domain_values(var):
             return self.domains[var]
         
-        
-        """
-        Method for verifying that assigning a value to the current variable does not violate any 
-        constraints with the values already assigned to other variables
-        # --- Code is based on this:
-            # To check if variable1=value1, variable2=value2 is in violation of a binary constraint:
-            # if (
-            #     (variable1, variable2) in self.binary_constraints and
-            #     (value1, value2) not in self.binary_constraints[(variable1, variable2)]
-            # ) or (
-            #     (variable2, variable1) in self.binary_constraints and
-            #     (value1, value2) not in self.binary_constraints[(variable2, variable1)]
-            # ):
-            #     Violates a binary constraint
-        """
         def consistent(value, currentVariable, assignment):
+            """
+            Method for verifying that assigning a value to the current variable does not violate any 
+            constraints with the values already assigned to other variables
+            --- Code is based on lines 27-37 within this file, csp.py
+            """
             # Empty assignment dict implies no constraints violated
             if not assignment:
                 return True
@@ -176,10 +169,10 @@ class CSP:
                         return False
                 # The two checks could be better implemented as a method as they are similar, 
                 # only with different order. Leaving it be for now.
-            # 
             return True
         
         def backtrack(assignment: dict[str, Any]):
+            self.backtrackCounter += 1
             var = select_unassigned_variable(assignment)
             # Since select_unassigned_variable method basically is a completeness check, 
             # it returns None if no unassigned are left which is used to verify completeness.
@@ -194,6 +187,7 @@ class CSP:
                         return result
                     assignment.pop(var)
             return None 
+        print("Initiating backtrack ...")
         return backtrack({})
 
 
