@@ -62,14 +62,23 @@ class CSP:
             False if a domain becomes empty, otherwise True
             
         """
-        # My code below here ----------------
+        # My code below here ------------------------------------
+        # Initialize queue
         queue = deque()
         for arc in self.binary_constraints:
             if arc not in queue:
                 queue.append(arc)
         
-        # Revise method ---------------------------------------------
+        #Revise method
         def revise(arc):
+            """_summary_
+
+            Args:
+                arc (tuple): To variables X, Y sharing a constraint
+
+            Returns:
+                boolean: True if the domain of variable of X was reduced
+            """
             revised = False
             X = arc[0]
             Y = arc[1]
@@ -79,6 +88,8 @@ class CSP:
             variablePair = (X, Y)
             if variablePair in constraints:
                 legalValues = constraints[variablePair]
+            else:
+                return False
             for xValue in domainX:
                 discard = True
                 for yValue in domainY:
@@ -91,15 +102,16 @@ class CSP:
             return revised        
             # ---------------------------------------------
         
-        safetyCounter = 0
         while not len(queue)==0:
             currentArc = queue.popleft()
+            #Revise is called
             if revise(currentArc):
                 X = currentArc[0]
                 domainX = self.domains[X]
                 if len(domainX) == 0:
                     return False
                 
+                # Finding all X.neighbors \ {Y} for currentArc = (X,Y)
                 neighbors = []
                 Y = currentArc[1]
                 for constraintPair in self.binary_constraints:
@@ -111,15 +123,31 @@ class CSP:
                 for adjacentVariable in neighbors:
                     queue.append((adjacentVariable, X))
                     
-            safetyCounter += 1
-            if safetyCounter >= 1000:
-                print("------------ Counter safety engaged ------------")
-                break
-        print("-------------- AC-3 finished -------------\nDomains:")
-        print(self.domains)
-        return True
-        
-
+        #Prints for clarity            
+        print("**  AC-3 finished  **")
+        #print(self.domains)
+        prettyPrint(self.domains)
+        def prettyPrint(domains: dict[str, set]):
+            """
+            Method for pretty-printing the domain set of each variable, five in each line
+            """
+            if domains:
+                string = ""
+                counter = 0
+                rowCounter = 0
+                print("New domains: -------------------------------------------------------")
+                for variable in domains:
+                    newStr = f"{variable}: {{{domains[variable]}}} | " # Should become: "X: {x,x2, ...} | X2: ..."
+                    string.join(newStr)
+                    counter += 1
+                    if counter>=5 and rowCounter<=16:
+                        print(string[:-2])
+                        string = ""
+                        counter = 0
+                        rowCounter += 1
+        # Returning true upon finished succesful ac-3 reduction
+        return True                
+    
     def backtracking_search(self) -> None | dict[str, Any]:
         """Performs backtracking search on the CSP.
         
@@ -131,22 +159,29 @@ class CSP:
         #! My code ----------------------------------------------------------------
         
         def select_unassigned_variable(assignment: dict[str, Any]):
+            """
+            Selects any variable not assigned from input assignment
+            """
             for variable in self.variables:
                 if variable not in assignment:
                     return variable
             return None
                 
-        # domains: dict of [district, {possible colors}]
-        # i.e. {'WA': {'green', 'red', 'blue'}, 'NT': {'green', 'red', 'blue'}, ... }
-        #Any ordering is fine - sorted alphabetically just in case
         def order_domain_values(var):
+            """
+            Returns the csp's domains for variable in argument
+            
+            Args: var
+            """
             return self.domains[var]
         
-        def consistent(value, currentVariable, assignment):
+        def consistent(value, currentVariable, assignment: dict[str, Any]):
             """
             Method for verifying that assigning a value to the current variable does not violate any 
             constraints with the values already assigned to other variables
             --- Code is based on lines 27-37 within this file, csp.py
+            
+            Args: value to check, variable it is going to be assigned to, and the assignments
             """
             # Empty assignment dict implies no constraints violated
             if not assignment:
@@ -161,17 +196,25 @@ class CSP:
                     legalValuePairs = constraints[variablePair]
                     if (value, otherValue) not in legalValuePairs:
                         return False
-                # Check possible other ordering --- however:
+                # Check possible other ordering:
                 variablePair = (otherVariable, currentVariable)
                 if variablePair in constraints:
                     legalValuePairs = constraints[variablePair]
                     if (otherValue, value) not in legalValuePairs:
                         return False
-                # The two checks could be better implemented as a method as they are similar, 
+                # The two checks above could be better implemented as a method as they are similar, 
                 # only with different order. Leaving it be for now.
             return True
         
         def backtrack(assignment: dict[str, Any]):
+            """
+            Internal backtracking search method to be called recursively.
+            
+            Args: Assignments (dict[str, Any])
+            
+            Returns: Assignment | None
+            """
+            #Global counter to check how many calls
             self.backtrackCounter += 1
             var = select_unassigned_variable(assignment)
             # Since select_unassigned_variable method basically is a completeness check, 
