@@ -200,6 +200,9 @@ class CSP:
             """
             #Global counter to check how many calls
             self.backtrackCounter += 1
+            #if (self.backtrackCounter % 100000) == 0:
+                #print(self.backtrackCounter)
+                #print("•  " * (self.backtrackCounter//10000) )
             var = select_unassigned_variable(assignment)
             # Since select_unassigned_variable method basically is a completeness check, 
             # it returns None if no unassigned are left which is used to verify completeness.
@@ -219,8 +222,8 @@ class CSP:
         backtrackTimerStart = time()
         result = backtrack({})
         backtrackTimerEnd = time()
-        self.totaltimer = time() - self.totaltimer
-        print(f"Backtrack finished in : {backtrackTimerEnd-backtrackTimerStart} ms")
+        #self.totaltimer = time() - self.totaltimer
+        print(f"Backtrack finished in : {backtrackTimerEnd-backtrackTimerStart} s")
         return result
 
 

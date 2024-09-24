@@ -22,9 +22,9 @@ def print_solution(solution):
 
 # Choose Sudoku problem
 #grid = open('sudoku_easy.txt').read().split()
-#grid = open('sudoku_medium.txt').read().split()
+grid = open('sudoku_medium.txt').read().split()
 #grid = open('sudoku_hard.txt').read().split()
-grid = open('sudoku_very_hard.txt').read().split()
+#grid = open('sudoku_very_hard.txt').read().split()
 
 width = 9
 box_width = 3
@@ -58,11 +58,11 @@ csp = CSP(
     edges=edges,
 )
 
-print(csp.ac_3())
+#print(csp.ac_3())
 print_solution(csp.backtracking_search())
 print(f"\nBacktrack count:    {csp.backtrackCounter}")
 print(f"Backtrack failures: {csp.failureCounter}\n")
-print(f"Total runtime for ac-3 + backtracking search: {csp.totaltimer} ms\n")
+#print(f"Total runtime for ac-3 + backtracking search: {csp.totaltimer} s\n")
 
 # Expected output after implementing csp.ac_3() and csp.backtracking_search():
 # True
