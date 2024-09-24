@@ -275,9 +275,9 @@ Backtrack count:        | 6194458
 Backtrack failures:     | 6194376
 
 ## Hard
-Backtrack finished in : |  s
-Backtrack count:        | 
-Backtrack failures:     | 
+Backtrack finished in : | 58.99513912200928 s
+Backtrack count:        | 3108122
+Backtrack failures:     | 3108040
 
 ## Very Hard
 Backtrack finished in : |  s

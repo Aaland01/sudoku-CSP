@@ -19,11 +19,10 @@ def print_solution(solution):
         if row == 2 or row == 5:
             print('------+-------+------')
 
-
 # Choose Sudoku problem
 #grid = open('sudoku_easy.txt').read().split()
-grid = open('sudoku_medium.txt').read().split()
-#grid = open('sudoku_hard.txt').read().split()
+#grid = open('sudoku_medium.txt').read().split()
+grid = open('sudoku_hard.txt').read().split()
 #grid = open('sudoku_very_hard.txt').read().split()
 
 width = 9
