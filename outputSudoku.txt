@@ -131,7 +131,9 @@ Backtrack finished in : 0.004007577896118164 ms
 4 5 3 | 7 2 9 | 6 1 8
 8 6 2 | 3 1 4 | 7 9 5
 1 9 7 | 6 5 8 | 2 4 3
-Backtrack count: 308
+
+Backtrack count:    308
+Backtrack failures: 226
 Total runtime for ac-3 + backtracking search: 0.058408260345458984 ms
 
 Medium ----------------------------------------------------------------------------------------------- Medium

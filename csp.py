@@ -24,6 +24,7 @@ class CSP:
         self.variables = variables
         self.domains = domains
         self.backtrackCounter = 0
+        self.failureCounter = 0
 
 
         # Binary constraints as a dictionary mapping variable pairs to a set of value pairs.
@@ -212,6 +213,7 @@ class CSP:
                     if result is not None:
                         return result
                     assignment.pop(var)
+            self.failureCounter += 1
             return None 
         print("Initiating backtrack ...")
         backtrackTimerStart = time()

@@ -9,6 +9,7 @@ def print_solution(solution):
     Convert the representation of a Sudoku solution, as returned from
     the method CSP.backtracking_search(), into a Sudoku board.
     """
+    print("\nSolution:")
     for row in range(width):
         for col in range(width):
             print(solution[f'X{row+1}{col+1}'], end=" ")
@@ -57,8 +58,9 @@ csp = CSP(
 
 print(csp.ac_3())
 print_solution(csp.backtracking_search())
-print(f"Backtrack count: {csp.backtrackCounter}")
-print(f"Total runtime for ac-3 + backtracking search: {csp.totaltimer} ms")
+print(f"\nBacktrack count:    {csp.backtrackCounter}")
+print(f"Backtrack failures: {csp.failureCounter}\n")
+print(f"Total runtime for ac-3 + backtracking search: {csp.totaltimer} ms\n")
 
 # Expected output after implementing csp.ac_3() and csp.backtracking_search():
 # True
