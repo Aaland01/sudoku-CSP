@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Any
 from queue import Queue
-
+from time import time
 
 class CSP:
     def __init__(
@@ -63,6 +63,8 @@ class CSP:
             
         """
         # My code below here ------------------------------------
+        ac3timerStart = time()
+        self.totaltimer = time()
         # Initialize queue
         queue = deque()
         for arc in self.binary_constraints:
@@ -122,14 +124,12 @@ class CSP:
                             
                 for adjacentVariable in neighbors:
                     queue.append((adjacentVariable, X))
-                    
-        #Prints for clarity            
-        print("**  AC-3 finished  **")
-        #print(self.domains)
         prettyPrint(self.domains)
         
         # Returning true upon finished succesful ac-3 reduction
-        return True                
+        ac3timerEnd = time()
+        print(f"**  AC-3 finished in {ac3timerEnd-ac3timerStart} ms **")
+        return True
     
     def backtracking_search(self) -> None | dict[str, Any]:
         """Performs backtracking search on the CSP.
@@ -214,7 +214,12 @@ class CSP:
                     assignment.pop(var)
             return None 
         print("Initiating backtrack ...")
-        return backtrack({})
+        backtrackTimerStart = time()
+        result = backtrack({})
+        backtrackTimerEnd = time()
+        self.totaltimer = time() - self.totaltimer
+        print(f"Backtrack finished in : {backtrackTimerEnd-backtrackTimerStart} ms")
+        return result
 
 
 def alldiff(variables: list[str]) -> list[tuple[str, str]]:

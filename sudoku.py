@@ -58,6 +58,7 @@ csp = CSP(
 print(csp.ac_3())
 print_solution(csp.backtracking_search())
 print(f"Backtrack count: {csp.backtrackCounter}")
+print(f"Total runtime for ac-3 + backtracking search: {csp.totaltimer} ms")
 
 # Expected output after implementing csp.ac_3() and csp.backtracking_search():
 # True
