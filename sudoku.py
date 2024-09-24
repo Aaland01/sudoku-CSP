@@ -22,9 +22,9 @@ def print_solution(solution):
 
 # Choose Sudoku problem
 #grid = open('sudoku_easy.txt').read().split()
-grid = open('sudoku_medium.txt').read().split()
+#grid = open('sudoku_medium.txt').read().split()
 #grid = open('sudoku_hard.txt').read().split()
-#grid = open('sudoku_veryhard.txt').read().split()
+grid = open('sudoku_very_hard.txt').read().split()
 
 width = 9
 box_width = 3
