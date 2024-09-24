@@ -240,26 +240,26 @@ def alldiff(variables: list[str]) -> list[tuple[str, str]]:
     return [(variables[i], variables[j]) for i in range(len(variables) - 1) for j in range(i + 1, len(variables))]
 
 def prettyPrint(domains: dict[str, set]):
-            """
-            Method for pretty-printing the domain set of each variable, five in each line
-            """
-            if domains:
+    """
+    Method for pretty-printing the domain set of each variable, five in each line
+    """
+    if domains:
+        string = ""
+        counter = 0
+        rowCounter = 0
+        print("New domains: ")
+        for variable in domains:
+            newStr = f"{variable}: {domains[variable]} | " # Should become: "X: {x,x2, ...} | X2: ..."
+            string += newStr
+            counter += 1
+            if counter>=5:
+                print(f"{rowCounter} -- {string[:-2]}")
                 string = ""
                 counter = 0
-                rowCounter = 0
-                print("New domains: ")
-                for variable in domains:
-                    newStr = f"{variable}: {domains[variable]} | " # Should become: "X: {x,x2, ...} | X2: ..."
-                    string += newStr
-                    counter += 1
-                    if counter>=5:
-                        print(f"{rowCounter} -- {string[:-2]}")
-                        string = ""
-                        counter = 0
-                        if rowCounter == 14:
-                            counter = -1
-                        rowCounter += 1
-                    
+                if rowCounter == 14:
+                    counter = -1
+                rowCounter += 1
+            
     
 
     
