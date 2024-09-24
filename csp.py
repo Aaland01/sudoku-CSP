@@ -247,7 +247,7 @@ def prettyPrint(domains: dict[str, set]):
                 string = ""
                 counter = 0
                 rowCounter = 0
-                print("New domains: -------------------------------------------------------")
+                print("New domains: ")
                 for variable in domains:
                     newStr = f"{variable}: {domains[variable]} | " # Should become: "X: {x,x2, ...} | X2: ..."
                     string += newStr
